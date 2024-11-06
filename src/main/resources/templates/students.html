@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Management</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light background for contrast */
+        }
+        .container {
+            max-width: 1200px; /* Set a max width for the container */
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007bff; /* Bootstrap primary color */
+        }
+        .btn-primary {
+            margin-bottom: 15px; /* Space below Add Student button */
+        }
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        th {
+            background-color: #007bff; /* Header background color */
+            color: white; /* Header text color */
+        }
+        tr:hover {
+            background-color: #e9ecef; /* Highlight on hover */
+        }
+        .actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        .btn-danger {
+            margin-left: 10px; /* Space between buttons */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Student Management</h2>
+        <a href="/students/add" class="btn btn-primary mb-3">Add Student</a>
+        
+        <div class="card">
+            <div class="card-body">
+                <table class="table mt-4">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Class 10 Percentage</th>
+                            <th>Class 12 Percentage</th>
+                            <th>Current Semester CGPA</th>
+                            <th>Total CGPA</th>
+                            <th>Roll Number</th>
+                            <th>Year</th>
+                            <th>Semester</th>
+                            <th>Class Section</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="student : ${students}">
+                            <td th:text="${student.name}"></td>
+                            <td th:text="${student.email}"></td>
+                            <td th:text="${student.class10Percentage}"></td>
+                            <td th:text="${student.class12Percentage}"></td>
+                            <td th:text="${student.currentSemesterCGPA}"></td>
+                            <td th:text="${student.totalCGPA}"></td>
+                            <td th:text="${student.rollNumber}"></td>
+                            <td th:text="${student.year}"></td>
+                            <td th:text="${student.semester}"></td>
+                            <td th:text="${student.classSection}"></td>
+                            <td th:text="${student.type}"></td>
+                            <td class="actions">
+                                <a th:href="@{/students/edit/{id}(id=${student.id})}" class="btn btn-warning">
+                                    Edit
+                                </a>
+                                <a th:href="@{/students/delete/{id}(id=${student.id})}" class="btn btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

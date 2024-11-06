@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Management Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light background for contrast */
+        }
+        .container {
+            max-width: 1200px; /* Set a max width for the container */
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #007bff; /* Bootstrap primary color */
+            font-weight: bold;
+        }
+        .card {
+            margin-bottom: 20px; /* Space between cards */
+            border: none; /* Remove card border */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Shadow effect */
+        }
+        .card-header {
+            background-color: #007bff; /* Card header background color */
+            color: white; /* Header text color */
+            font-weight: bold; /* Bold header text */
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 400px; /* Set height for charts */
+            width: 80%; /* Set width for charts */
+        }
+        .summary-card {
+            background-color: #ffffff; /* White background for summary cards */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            padding: 20px; /* Padding inside the card */
+            text-align: center; /* Centered text */
+        }
+        .summary-card h5 {
+            margin-bottom: 10px; /* Margin below title */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Student Management Dashboard</h2>
+
+        <!-- Summary Section -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <h5>Total Students</h5>
+                    <h2 th:text="${#lists.size(students)}">0</h2> <!-- Total number of students -->
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <h5>Average Class 10 Percentage</h5>
+                    <h2 th:text="${averageClass10Percentage}">0</h2> <!-- Average Class 10 percentage -->
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <h5>Average Class 12 Percentage</h5>
+                    <h2 th:text="${averageClass12Percentage}">0</h2> <!-- Average Class 12 percentage -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Options -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <select id="classFilter" class="form-select" onchange="updateGraphs()">
+                    <option value="">Select Class</option>
+                    <option value="10">Class 10</option>
+                    <option value="12">Class 12</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select id="typeFilter" class="form-select" onchange="updateGraphs()">
+                    <option value="">Select Type</option>
+                    <option value="Regular">Regular</option>
+                    <option value="Hosteller">Hosteller</option>
+                    <option value="Day Scholar">Day Scholar</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Chart for Class Performance -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Class Performance Overview</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart for CGPA Distribution -->
+        <div class="card">
+            <div class="card-header">
+                <h5>CGPA Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="cgpaChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart for Student Type Distribution -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Student Type Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart for Current Semester Performance -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Current Semester Performance</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="semesterChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student List Table -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Student List</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Class 10 %</th>
+                            <th>Class 12 %</th>
+                            <th>Current Semester CGPA</th>
+                            <th>Total CGPA</th>
+                            <th>Roll Number</th>
+                            <th>Year</th>
+                            <th>Semester</th>
+                            <th>Class Section</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="student : ${students}">
+                            <td th:text="${student.name}"></td>
+                            <td th:text="${student.email}"></td>
+                            <td th:text="${student.class10Percentage}"></td>
+                            <td th:text="${student.class12Percentage}"></td>
+                            <td th:text="${student.currentSemesterCGPA}"></td>
+                            <td th:text="${student.totalCGPA}"></td>
+                            <td th:text="${student.rollNumber}"></td>
+                            <td th:text="${student.year}"></td>
+                            <td th:text="${student.semester}"></td>
+                            <td th:text="${student.classSection}"></td>
+                            <td>
+                                <span class="badge bg-primary" th:text="${student.type}"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sample data for charts (replace with dynamic data)
+        const students = [
+            {name: 'John Doe', class10Percentage: 85, class12Percentage: 90, currentSemesterCGPA: 7.5, totalCGPA: 8.0, year: 10, type: 'Regular'},
+            {name: 'Jane Smith', class10Percentage: 75, class12Percentage: 85, currentSemesterCGPA: 8.2, totalCGPA: 8.5, year: 12, type: 'Hosteller'},
+            {name: 'Bob Brown', class10Percentage: 65, class12Percentage: 70, currentSemesterCGPA: 6.8, totalCGPA: 7.0, year: 10, type: 'Day Scholar'},
+            // Add more student objects as necessary
+        ];
+
+        // Function to update charts based on selected filters
+        function updateGraphs() {
+            const selectedClass = document.getElementById('classFilter').value;
+            const selectedType = document.getElementById('typeFilter').value;
+
+            // Filter the students array based on selected criteria
+            const filteredStudents = students.filter(student => {
+                const matchesClass = selectedClass ? student.year == selectedClass : true;
+                const matchesType = selectedType ? student.type === selectedType : true;
+                return matchesClass && matchesType;
+            });
+
+            // Prepare data for performance chart
+            const performanceData = {
+                labels: ['Class 10', 'Class 12'],
+                datasets: [{
+                    label: 'Average Percentage',
+                    data: [
+                        filteredStudents.length ? (filteredStudents.reduce((sum, s) => sum + s.class10Percentage, 0) / filteredStudents.length) : 0,
+                        filteredStudents.length ? (filteredStudents.reduce((sum, s) => sum + s.class12Percentage, 0) / filteredStudents.length) : 0
+                    ],
+                    backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+                    borderWidth: 1
+                }]
+            };
+
+            // Update performance chart
+            const performanceChart = new Chart(document.getElementById('performanceChart').getContext('2d'), {
+                type: 'bar',
+                data: performanceData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Prepare data for CGPA chart
+            const cgpaData = {
+                labels: ['Current Semester', 'Total CGPA'],
+                datasets: [{
+                    label: 'Average CGPA',
+                    data: [
+                        filteredStudents.length ? (filteredStudents.reduce((sum, s) => sum + s.currentSemesterCGPA, 0) / filteredStudents.length) : 0,
+                        filteredStudents.length ? (filteredStudents.reduce((sum, s) => sum + s.totalCGPA, 0) / filteredStudents.length) : 0
+                    ],
+                    backgroundColor: ['rgba(255, 159, 64, 0.6)', 'rgba(255, 206, 86, 0.6)'],
+                    borderColor: ['rgba(255, 159, 64, 1)', 'rgba(255, 206, 86, 1)'],
+                    borderWidth: 1
+                }]
+            };
+
+            // Update CGPA chart
+            const cgpaChart = new Chart(document.getElementById('cgpaChart').getContext('2d'), {
+                type: 'bar',
+                data: cgpaData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Prepare data for Student Type Distribution chart
+            const typeCount = filteredStudents.reduce((acc, student) => {
+                acc[student.type] = (acc[student.type] || 0) + 1;
+                return acc;
+            }, {});
+            const typeLabels = Object.keys(typeCount);
+            const typeData = Object.values(typeCount);
+
+            const typeDistributionData = {
+                labels: typeLabels,
+                datasets: [{
+                    label: 'Number of Students by Type',
+                    data: typeData,
+                    backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(255, 206, 86, 0.6)'],
+                }]
+            };
+
+            // Update Student Type Distribution chart
+            const typeChart = new Chart(document.getElementById('typeChart').getContext('2d'), {
+                type: 'doughnut',
+                data: typeDistributionData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    },
+                }
+            });
+
+            // Prepare data for Current Semester Performance chart
+            const semesterData = {
+                labels: ['Class 10', 'Class 12'],
+                datasets: [{
+                    label: 'Current Semester Performance',
+                    data: [
+                        filteredStudents.length ? (filteredStudents.reduce((sum, s) => sum + s.currentSemesterCGPA, 0) / filteredStudents.length) : 0,
+                        filteredStudents.length ? (filteredStudents.reduce((sum, s) => sum + s.class12Percentage, 0) / filteredStudents.length) : 0
+                    ],
+                    backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+                    borderWidth: 1
+                }]
+            };
+
+            // Update Current Semester Performance chart
+            const semesterChart = new Chart(document.getElementById('semesterChart').getContext('2d'), {
+                type: 'bar',
+                data: semesterData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+		
+		
+
+        // Initialize the charts
+        updateGraphs(); // Call to initialize with default data
+    </script>
+</body>
+</html>
